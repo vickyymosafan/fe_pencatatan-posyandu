@@ -98,7 +98,7 @@ export function Select({
   const normalStyles = 'border-neutral-300 hover:border-neutral-400';
   const errorStyles = 'border-red-500';
   const disabledStyles = 'bg-neutral-100 cursor-not-allowed';
-  const focusStyles = 'focus:ring-2 focus:ring-neutral-400 focus:border-transparent';
+  const focusStyles = 'focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:border-transparent focus-visible:ring-offset-2';
 
   const selectStyles = cn(
     baseStyles,

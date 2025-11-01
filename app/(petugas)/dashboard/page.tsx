@@ -119,30 +119,33 @@ export default function PetugasDashboardPage() {
   return (
     <div className="space-y-6">
       {/* Page Header */}
-      <div>
+      <header>
         <h1 className="text-3xl font-bold text-neutral-900">Dashboard Petugas</h1>
         <p className="text-neutral-600 mt-1">
           Selamat datang, {user?.nama || 'Petugas'}
         </p>
-      </div>
+      </header>
 
       {/* Stat Cards Grid */}
-      {isLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {[...Array(3)].map((_, i) => (
-            <Skeleton key={i} className="h-24 w-full" />
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          {statCards.map((card, index) => (
-            <StatCard key={index} {...card} />
-          ))}
-        </div>
-      )}
+      <section aria-label="Statistik"}
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {[...Array(3)].map((_, i) => (
+              <Skeleton key={i} className="h-24 w-full" />
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            {statCards.map((card, index) => (
+              <StatCard key={index} {...card} />
+            ))}
+          </div>
+        )}
+      </section>
 
       {/* Shortcut Buttons */}
-      <Card>
+      <section aria-label="Aksi Cepat">
+        <Card>
         <h3 className="font-semibold text-neutral-900 mb-4">Aksi Cepat</h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <Link href="/petugas/scan" className="block">
@@ -170,10 +173,12 @@ export default function PetugasDashboardPage() {
             </Button>
           </Link>
         </div>
-      </Card>
+        </Card>
+      </section>
 
       {/* Recent Pemeriksaan */}
-      <Card title="Pemeriksaan Terbaru" subtitle="5 pemeriksaan terakhir Anda">
+      <section aria-label="Pemeriksaan Terbaru">
+        <Card title="Pemeriksaan Terbaru" subtitle="5 pemeriksaan terakhir Anda">
         {isLoading ? (
           <div className="space-y-3">
             {[...Array(5)].map((_, i) => (
@@ -229,7 +234,8 @@ export default function PetugasDashboardPage() {
             ))}
           </div>
         )}
-      </Card>
+        </Card>
+      </section>
     </div>
   );
 }

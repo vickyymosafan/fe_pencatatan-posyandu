@@ -36,7 +36,7 @@ export function Button({
   className,
   ...props
 }: ButtonProps) {
-  const baseStyles = 'btn inline-flex items-center justify-center font-medium transition-all';
+  const baseStyles = 'btn inline-flex items-center justify-center font-medium transition-all focus-visible:ring-2 focus-visible:ring-neutral-400 focus-visible:ring-offset-2';
   
   const variantStyles: Record<ButtonVariant, string> = {
     primary: 'bg-neutral-800 text-white hover:bg-neutral-900',

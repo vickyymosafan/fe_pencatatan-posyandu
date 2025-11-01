@@ -44,8 +44,8 @@ export function Navbar({ onMenuClick }: NavbarProps) {
 
           {/* Logo and App Name */}
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-neutral-800 rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">P</span>
+            <div className="w-10 h-10 bg-neutral-800 rounded-lg flex items-center justify-center" role="img" aria-label="Logo Posyandu Lansia">
+              <span className="text-white font-bold text-lg" aria-hidden="true">P</span>
             </div>
             <div className="hidden sm:block">
               <h1 className="text-lg font-semibold text-neutral-900">
