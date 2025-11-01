@@ -9,10 +9,40 @@ import { useEffect, useRef, useState } from 'react';
 import { Html5Qrcode } from 'html5-qrcode';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
+import { Button } from '@/components/ui/Button';
 
 export interface QRScannerProps {
   onScanSuccess: (decodedText: string) => void;
   onScanError?: (error: string) => void;
+}
+
+/**
+ * Check if camera permissions are granted
+ */
+async function checkCameraPermission(): Promise<boolean> {
+  try {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      return false;
+    }
+
+    // Check if running on HTTPS or localhost
+    const isSecureContext = window.isSecureContext;
+    if (!isSecureContext) {
+      return false;
+    }
+
+    // Try to get camera permission
+    const stream = await navigator.mediaDevices.getUserMedia({ 
+      video: { facingMode: 'environment' } 
+    });
+    
+    // Stop the stream immediately after checking
+    stream.getTracks().forEach(track => track.stop());
+    
+    return true;
+  } catch {
+    return false;
+  }
 }
 
 /**
@@ -28,59 +58,84 @@ export interface QRScannerProps {
 export function QRScanner({ onScanSuccess, onScanError }: QRScannerProps) {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [errorType, setErrorType] = useState<'permission' | 'https' | 'general'>('general');
   const scannerRef = useRef<Html5Qrcode | null>(null);
   const isScanning = useRef(false);
 
-  useEffect(() => {
-    const initScanner = async () => {
-      try {
-        setIsLoading(true);
-        setError(null);
+  const initScanner = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
 
-        // Create scanner instance
-        const scanner = new Html5Qrcode('qr-reader');
-        scannerRef.current = scanner;
-
-        // Start scanning
-        await scanner.start(
-          { facingMode: 'environment' }, // Use back camera
-          {
-            fps: 10, // Frames per second
-            qrbox: { width: 250, height: 250 }, // Scanning box size
-          },
-          (decodedText) => {
-            // Prevent multiple scans
-            if (!isScanning.current) {
-              isScanning.current = true;
-              onScanSuccess(decodedText);
-              
-              // Reset after 2 seconds to allow re-scanning
-              setTimeout(() => {
-                isScanning.current = false;
-              }, 2000);
-            }
-          },
-          (errorMessage) => {
-            // Ignore common scanning errors (no QR code in frame)
-            // Only log actual errors
-            if (!errorMessage.includes('No MultiFormat Readers')) {
-              console.debug('QR scan error:', errorMessage);
-            }
-          }
-        );
-
+      // Check if running on HTTPS or localhost
+      if (!window.isSecureContext) {
+        setError('Kamera hanya dapat diakses melalui HTTPS atau localhost');
+        setErrorType('https');
         setIsLoading(false);
-      } catch (err) {
-        const errorMsg = err instanceof Error ? err.message : 'Gagal mengakses kamera';
-        setError(errorMsg);
-        setIsLoading(false);
-        
         if (onScanError) {
-          onScanError(errorMsg);
+          onScanError('HTTPS required');
         }
+        return;
       }
-    };
 
+      // Check camera permission
+      const hasPermission = await checkCameraPermission();
+      if (!hasPermission) {
+        setError('Izin akses kamera ditolak atau tidak tersedia');
+        setErrorType('permission');
+        setIsLoading(false);
+        if (onScanError) {
+          onScanError('Camera permission denied');
+        }
+        return;
+      }
+
+      // Create scanner instance
+      const scanner = new Html5Qrcode('qr-reader');
+      scannerRef.current = scanner;
+
+      // Start scanning
+      await scanner.start(
+        { facingMode: 'environment' }, // Use back camera
+        {
+          fps: 10, // Frames per second
+          qrbox: { width: 250, height: 250 }, // Scanning box size
+        },
+        (decodedText) => {
+          // Prevent multiple scans
+          if (!isScanning.current) {
+            isScanning.current = true;
+            onScanSuccess(decodedText);
+            
+            // Reset after 2 seconds to allow re-scanning
+            setTimeout(() => {
+              isScanning.current = false;
+            }, 2000);
+          }
+        },
+        (errorMessage) => {
+          // Ignore common scanning errors (no QR code in frame)
+          // Only log actual errors
+          if (!errorMessage.includes('No MultiFormat Readers')) {
+            console.debug('QR scan error:', errorMessage);
+          }
+        }
+      );
+
+      setIsLoading(false);
+    } catch (err) {
+      const errorMsg = err instanceof Error ? err.message : 'Gagal mengakses kamera';
+      setError(errorMsg);
+      setErrorType('general');
+      setIsLoading(false);
+      
+      if (onScanError) {
+        onScanError(errorMsg);
+      }
+    }
+  };
+
+  useEffect(() => {
     initScanner();
 
     // Cleanup on unmount
@@ -136,9 +191,46 @@ export function QRScanner({ onScanSuccess, onScanError }: QRScannerProps) {
             Gagal Mengakses Kamera
           </h3>
           <p className="text-neutral-600 mb-4">{error}</p>
-          <p className="text-sm text-neutral-500">
-            Pastikan Anda telah memberikan izin akses kamera
-          </p>
+          
+          {/* Specific instructions based on error type */}
+          {errorType === 'permission' && (
+            <div className="space-y-3">
+              <p className="text-sm text-neutral-500">
+                Pastikan Anda telah memberikan izin akses kamera
+              </p>
+              <div className="text-xs text-neutral-500 space-y-1">
+                <p>Cara memberikan izin:</p>
+                <p>1. Klik ikon kunci/info di address bar browser</p>
+                <p>2. Pilih &quot;Izinkan&quot; untuk akses kamera</p>
+                <p>3. Refresh halaman atau klik tombol Coba Lagi</p>
+              </div>
+              <Button onClick={initScanner} variant="primary" className="mt-4">
+                Coba Lagi
+              </Button>
+            </div>
+          )}
+          
+          {errorType === 'https' && (
+            <div className="space-y-3">
+              <p className="text-sm text-neutral-500">
+                Akses kamera memerlukan koneksi HTTPS yang aman
+              </p>
+              <p className="text-xs text-neutral-500">
+                Pastikan aplikasi diakses melalui HTTPS atau localhost
+              </p>
+            </div>
+          )}
+          
+          {errorType === 'general' && (
+            <div className="space-y-3">
+              <p className="text-sm text-neutral-500">
+                Terjadi kesalahan saat mengakses kamera
+              </p>
+              <Button onClick={initScanner} variant="primary" className="mt-4">
+                Coba Lagi
+              </Button>
+            </div>
+          )}
         </div>
       </Card>
     );
