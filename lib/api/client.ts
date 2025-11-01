@@ -5,6 +5,8 @@
  */
 
 import { ApiResponse } from '@/types';
+import { logger } from '@/lib/utils/logger';
+import { getUserFriendlyMessage } from '@/lib/utils/errorMessages';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
@@ -35,6 +37,7 @@ class ApiClient {
   private handleUnauthorized(): void {
     if (typeof window === 'undefined') return;
     
+    logger.warn('Unauthorized access - clearing auth and redirecting to login');
     localStorage.removeItem('token');
     localStorage.removeItem('user');
     window.location.href = '/login';
@@ -79,18 +82,37 @@ class ApiClient {
 
       // Handle non-OK responses
       if (!response.ok) {
+        const errorMessage = data.message || `Request failed with status ${response.status}`;
+        logger.error(`API request failed: ${endpoint}`, new Error(errorMessage), {
+          status: response.status,
+          endpoint,
+          method: options.method || 'GET',
+        });
+        
         return {
-          error: data.message || `Request failed with status ${response.status}`,
+          error: getUserFriendlyMessage(response.status, errorMessage),
         };
       }
+
+      logger.debug(`API request successful: ${endpoint}`, {
+        endpoint,
+        method: options.method || 'GET',
+      });
 
       return { data };
     } catch (error) {
       // Handle network errors
+      const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';
+      
+      logger.error(`API request error: ${endpoint}`, error instanceof Error ? error : new Error(errorMessage), {
+        endpoint,
+        method: options.method || 'GET',
+      });
+      
       if (error instanceof Error) {
-        return { error: error.message };
+        return { error: getUserFriendlyMessage(error) };
       }
-      return { error: 'An unexpected error occurred' };
+      return { error: getUserFriendlyMessage('UNKNOWN_ERROR') };
     }
   }
 

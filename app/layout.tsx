@@ -4,6 +4,8 @@ import "./globals.css";
 import { AuthProvider } from "@/lib/context/AuthContext";
 import { ToastProvider } from "@/lib/context/ToastContext";
 import { ToastRenderer } from "@/components/providers/ToastRenderer";
+import { ErrorHandlerProvider } from "@/components/providers/ErrorHandlerProvider";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 const montserrat = Montserrat({
   subsets: ["latin"],
@@ -25,12 +27,16 @@ export default function RootLayout({
   return (
     <html lang="id">
       <body className={`${montserrat.variable} antialiased`}>
-        <AuthProvider>
-          <ToastProvider>
-            {children}
-            <ToastRenderer />
-          </ToastProvider>
-        </AuthProvider>
+        <ErrorBoundary>
+          <AuthProvider>
+            <ToastProvider>
+              <ErrorHandlerProvider>
+                {children}
+                <ToastRenderer />
+              </ErrorHandlerProvider>
+            </ToastProvider>
+          </AuthProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );
