@@ -2,11 +2,12 @@
  * StatCard Component
  * Displays a single statistic with icon, label, and value
  * Used in dashboard pages
+ * Optimized with React.memo to prevent unnecessary re-renders
  */
 
 'use client';
 
-import React from 'react';
+import { memo } from 'react';
 import { LucideIcon } from 'lucide-react';
 import { Card } from '@/components/ui/Card';
 import { cn } from '@/lib/utils';
@@ -32,7 +33,7 @@ export interface StatCardProps {
  *   iconBgColor="bg-blue-100"
  * />
  */
-export function StatCard({
+export const StatCard = memo(function StatCard({
   label,
   value,
   icon: Icon,
@@ -58,4 +59,4 @@ export function StatCard({
       </div>
     </Card>
   );
-}
+});

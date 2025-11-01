@@ -5,7 +5,7 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { UserCheck, Activity, Calendar, Scan, History } from 'lucide-react';
 import Link from 'next/link';
 import { StatCard } from '@/components/features/dashboard';
@@ -92,29 +92,33 @@ export default function PetugasDashboardPage() {
     }
   };
 
-  const statCards = [
-    {
-      label: 'Total Lansia Terdaftar',
-      value: totalLansia,
-      icon: UserCheck,
-      iconColor: 'text-blue-600',
-      iconBgColor: 'bg-blue-100',
-    },
-    {
-      label: 'Pemeriksaan Hari Ini',
-      value: pemeriksaanHariIni,
-      icon: Activity,
-      iconColor: 'text-green-600',
-      iconBgColor: 'bg-green-100',
-    },
-    {
-      label: 'Pemeriksaan Bulan Ini',
-      value: pemeriksaanBulanIni,
-      icon: Calendar,
-      iconColor: 'text-purple-600',
-      iconBgColor: 'bg-purple-100',
-    },
-  ];
+  // Memoize stat cards configuration to prevent unnecessary recalculations
+  const statCards = useMemo(
+    () => [
+      {
+        label: 'Total Lansia Terdaftar',
+        value: totalLansia,
+        icon: UserCheck,
+        iconColor: 'text-blue-600',
+        iconBgColor: 'bg-blue-100',
+      },
+      {
+        label: 'Pemeriksaan Hari Ini',
+        value: pemeriksaanHariIni,
+        icon: Activity,
+        iconColor: 'text-green-600',
+        iconBgColor: 'bg-green-100',
+      },
+      {
+        label: 'Pemeriksaan Bulan Ini',
+        value: pemeriksaanBulanIni,
+        icon: Calendar,
+        iconColor: 'text-purple-600',
+        iconBgColor: 'bg-purple-100',
+      },
+    ],
+    [totalLansia, pemeriksaanHariIni, pemeriksaanBulanIni]
+  );
 
   return (
     <div className="space-y-6">

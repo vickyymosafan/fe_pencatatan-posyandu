@@ -6,15 +6,45 @@
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import { Users, UserCheck, Activity, UserCog } from 'lucide-react';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import { StatCard } from '@/components/features/dashboard';
 import { Card } from '@/components/ui/Card';
 import { Skeleton } from '@/components/ui/Skeleton';
 import { getDashboardStats } from '@/lib/api/laporan';
 import { useToast } from '@/lib/hooks';
 import { DashboardStats } from '@/types';
+
+// Dynamically import Recharts to optimize bundle size
+const LineChart = dynamic(
+  () => import('recharts').then((mod) => mod.LineChart),
+  { ssr: false }
+);
+const Line = dynamic(
+  () => import('recharts').then((mod) => mod.Line),
+  { ssr: false }
+);
+const XAxis = dynamic(
+  () => import('recharts').then((mod) => mod.XAxis),
+  { ssr: false }
+);
+const YAxis = dynamic(
+  () => import('recharts').then((mod) => mod.YAxis),
+  { ssr: false }
+);
+const CartesianGrid = dynamic(
+  () => import('recharts').then((mod) => mod.CartesianGrid),
+  { ssr: false }
+);
+const Tooltip = dynamic(
+  () => import('recharts').then((mod) => mod.Tooltip),
+  { ssr: false }
+);
+const ResponsiveContainer = dynamic(
+  () => import('recharts').then((mod) => mod.ResponsiveContainer),
+  { ssr: false }
+);
 
 export default function AdminDashboardPage() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
@@ -47,39 +77,43 @@ export default function AdminDashboardPage() {
     }
   };
 
-  // Stat cards configuration
-  const statCards = stats
-    ? [
-        {
-          label: 'Total Lansia',
-          value: stats.totalLansia,
-          icon: UserCheck,
-          iconColor: 'text-blue-600',
-          iconBgColor: 'bg-blue-100',
-        },
-        {
-          label: 'Total Petugas',
-          value: stats.totalPetugas,
-          icon: Users,
-          iconColor: 'text-green-600',
-          iconBgColor: 'bg-green-100',
-        },
-        {
-          label: 'Pemeriksaan Bulan Ini',
-          value: stats.pemeriksaanBulanIni,
-          icon: Activity,
-          iconColor: 'text-purple-600',
-          iconBgColor: 'bg-purple-100',
-        },
-        {
-          label: 'Petugas Aktif',
-          value: stats.petugasAktif,
-          icon: UserCog,
-          iconColor: 'text-orange-600',
-          iconBgColor: 'bg-orange-100',
-        },
-      ]
-    : [];
+  // Memoize stat cards configuration to prevent unnecessary recalculations
+  const statCards = useMemo(
+    () =>
+      stats
+        ? [
+            {
+              label: 'Total Lansia',
+              value: stats.totalLansia,
+              icon: UserCheck,
+              iconColor: 'text-blue-600',
+              iconBgColor: 'bg-blue-100',
+            },
+            {
+              label: 'Total Petugas',
+              value: stats.totalPetugas,
+              icon: Users,
+              iconColor: 'text-green-600',
+              iconBgColor: 'bg-green-100',
+            },
+            {
+              label: 'Pemeriksaan Bulan Ini',
+              value: stats.pemeriksaanBulanIni,
+              icon: Activity,
+              iconColor: 'text-purple-600',
+              iconBgColor: 'bg-purple-100',
+            },
+            {
+              label: 'Petugas Aktif',
+              value: stats.petugasAktif,
+              icon: UserCog,
+              iconColor: 'text-orange-600',
+              iconBgColor: 'bg-orange-100',
+            },
+          ]
+        : [],
+    [stats]
+  );
 
   return (
     <div className="space-y-6">

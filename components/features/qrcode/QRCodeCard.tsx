@@ -1,10 +1,12 @@
 /**
  * QRCodeCard Component
  * Displays a single lansia's QR code with print functionality
+ * Optimized with React.memo to prevent unnecessary re-renders
  */
 
 'use client';
 
+import { memo } from 'react';
 import { Card } from '@/components/ui/Card';
 import { Button } from '@/components/ui/Button';
 import { Lansia } from '@/types';
@@ -26,7 +28,7 @@ export interface QRCodeCardProps {
  *   onPrint={handlePrint}
  * />
  */
-export function QRCodeCard({ lansia, onPrint }: QRCodeCardProps) {
+export const QRCodeCard = memo(function QRCodeCard({ lansia, onPrint }: QRCodeCardProps) {
   const handlePrint = () => {
     if (onPrint) {
       onPrint(lansia.id);
@@ -48,6 +50,7 @@ export function QRCodeCard({ lansia, onPrint }: QRCodeCardProps) {
           fill
           className="object-contain p-4"
           sizes="(max-width: 768px) 50vw, (max-width: 1024px) 33vw, 25vw"
+          priority={false}
         />
       </div>
 
@@ -73,4 +76,4 @@ export function QRCodeCard({ lansia, onPrint }: QRCodeCardProps) {
       </Button>
     </Card>
   );
-}
+});
