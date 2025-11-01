@@ -1,12 +1,21 @@
 {
-  "name": "fe",
-  "version": "0.1.0",
+  "name": "posyandu-lansia-frontend",
+  "version": "1.0.0",
   "private": true,
+  "description": "Frontend aplikasi Sistem Rekam Medis Digital Posyandu Lansia",
+  "author": "Your Team Name",
+  "license": "MIT",
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "type-check": "tsc --noEmit",
+    "build:production": "npm run type-check && npm run lint && npm run build",
+    "build:analyze": "ANALYZE=true npm run build",
+    "preview": "npm run build && npm run start",
+    "clean": "rm -rf .next out node_modules/.cache"
   },
   "dependencies": {
     "clsx": "^2.1.1",
