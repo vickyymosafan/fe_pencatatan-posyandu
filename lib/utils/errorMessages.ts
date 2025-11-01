@@ -94,6 +94,8 @@ export function getUserFriendlyMessage(
         return ERROR_MESSAGES.NOT_FOUND;
       case 409:
         return ERROR_MESSAGES.ALREADY_EXISTS;
+      case 429:
+        return 'Terlalu banyak permintaan. Silakan tunggu beberapa saat dan coba lagi.';
       case 500:
         return ERROR_MESSAGES.SERVER_ERROR;
       case 503:

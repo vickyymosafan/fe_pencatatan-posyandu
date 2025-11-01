@@ -27,19 +27,30 @@ class ApiClient {
    */
   private getToken(): string | null {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem('token');
+    const token = localStorage.getItem('token');
+    
+    // Debug logging in development
+    if (process.env.NODE_ENV === 'development' && token) {
+      logger.debug('Token retrieved from localStorage', {
+        tokenLength: token.length,
+        tokenPrefix: token.substring(0, 20) + '...',
+      });
+    }
+    
+    return token;
   }
 
   /**
    * Handle 401 Unauthorized responses
-   * Clears auth data and redirects to login
+   * Redirects to login without clearing localStorage
+   * Let AuthContext handle the cleanup to avoid conflicts with useLocalStorage
    */
   private handleUnauthorized(): void {
     if (typeof window === 'undefined') return;
     
-    logger.warn('Unauthorized access - clearing auth and redirecting to login');
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    logger.warn('Unauthorized access - redirecting to login');
+    // Don't clear localStorage here - let AuthContext/login page handle it
+    // This prevents conflicts with useLocalStorage state management
     window.location.href = '/login';
   }
 
@@ -99,7 +110,9 @@ class ApiClient {
         method: options.method || 'GET',
       });
 
-      return { data };
+      // Backend wraps response in { success, message, data }
+      // Extract the actual data from the wrapper
+      return { data: data.data || data };
     } catch (error) {
       // Handle network errors
       const errorMessage = error instanceof Error ? error.message : 'An unexpected error occurred';

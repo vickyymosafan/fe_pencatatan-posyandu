@@ -98,7 +98,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
           };
         }
 
-        const { token: newToken, user: newUser } = response.data.data;
+        const { token: newToken, user: newUser } = response.data;
 
         // Update state (useLocalStorage will handle localStorage)
         setToken(newToken);

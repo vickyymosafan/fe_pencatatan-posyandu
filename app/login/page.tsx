@@ -24,6 +24,19 @@ export default function LoginPage() {
   const toast = useToast();
   const router = useRouter();
 
+  // Clear any stale auth data on mount (from 401 redirects)
+  useEffect(() => {
+    if (!isAuthenticated && !isLoading) {
+      // Clear localStorage if redirected here due to 401
+      const hasToken = localStorage.getItem('token');
+      const hasUser = localStorage.getItem('user');
+      if (hasToken || hasUser) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
+    }
+  }, [isAuthenticated, isLoading]);
+
   // Redirect if already authenticated
   useEffect(() => {
     if (!isLoading && isAuthenticated && user) {

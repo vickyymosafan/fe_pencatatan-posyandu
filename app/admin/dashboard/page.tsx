@@ -52,7 +52,12 @@ export default function AdminDashboardPage() {
   const { showToast } = useToast();
 
   useEffect(() => {
-    fetchDashboardData();
+    // Add small delay to ensure token is fully saved after login
+    const timer = setTimeout(() => {
+      fetchDashboardData();
+    }, 200);
+    
+    return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
