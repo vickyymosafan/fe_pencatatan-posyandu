@@ -39,16 +39,16 @@ export default function PetugasDashboardPage() {
     
     setIsLoading(true);
     try {
-      // Fetch total lansia
-      const lansiaResponse = await getAllLansia(1, 1000);
+      // Fetch total lansia (just need the total count, so 1 page is enough)
+      const lansiaResponse = await getAllLansia(1, 1);
       if (lansiaResponse.data) {
         setTotalLansia(lansiaResponse.data.pagination.total);
       }
 
-      // Fetch all pemeriksaan (we'll filter client-side for now)
-      const pemeriksaanResponse = await getAllPemeriksaan(undefined, 1, 1000);
+      // Fetch all pemeriksaan with max limit
+      const pemeriksaanResponse = await getAllPemeriksaan(undefined, 1, 100);
       
-      if (pemeriksaanResponse.data) {
+      if (pemeriksaanResponse.data && pemeriksaanResponse.data.data && Array.isArray(pemeriksaanResponse.data.data)) {
         const allPemeriksaan = pemeriksaanResponse.data.data;
         
         // Filter by current user

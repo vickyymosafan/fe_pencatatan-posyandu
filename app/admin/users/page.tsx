@@ -52,7 +52,7 @@ export default function UsersPage() {
         return;
       }
 
-      if (response.data) {
+      if (response.data && response.data.data && Array.isArray(response.data.data)) {
         setUsers(response.data.data);
         setTotalPages(response.data.pagination.totalPages);
       }
@@ -143,7 +143,7 @@ export default function UsersPage() {
   };
 
   // Filter users based on search term (client-side for now)
-  const filteredUsers = users.filter(
+  const filteredUsers = (users || []).filter(
     (user) =>
       user.nama.toLowerCase().includes(debouncedSearchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(debouncedSearchTerm.toLowerCase())

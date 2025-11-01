@@ -29,7 +29,15 @@ export function useLocalStorage<T>(
       if (!item || item === 'undefined' || item === 'null') {
         return initialValue;
       }
-      return JSON.parse(item);
+      
+      // Try to parse as JSON first
+      try {
+        return JSON.parse(item);
+      } catch {
+        // If parsing fails, return as-is (for plain strings)
+        // This handles tokens stored as plain strings
+        return item as T;
+      }
     } catch (error) {
       console.error(`Error reading localStorage key "${key}":`, error);
       return initialValue;
@@ -50,7 +58,13 @@ export function useLocalStorage<T>(
 
         // Save to localStorage
         if (typeof window !== 'undefined') {
-          window.localStorage.setItem(key, JSON.stringify(valueToStore));
+          // For string primitives, store directly without JSON.stringify
+          // to avoid double-stringification issues
+          if (typeof valueToStore === 'string') {
+            window.localStorage.setItem(key, valueToStore);
+          } else {
+            window.localStorage.setItem(key, JSON.stringify(valueToStore));
+          }
         }
       } catch (error) {
         console.error(`Error setting localStorage key "${key}":`, error);

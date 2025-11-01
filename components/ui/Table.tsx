@@ -68,7 +68,8 @@ export function Table<T extends Record<string, unknown>>({
     );
   }
 
-  if (data.length === 0) {
+  // Handle undefined or empty data
+  if (!data || data.length === 0) {
     return (
       <div className="text-center py-12 text-neutral-500">
         <p>Tidak ada data</p>

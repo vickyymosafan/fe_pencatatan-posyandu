@@ -47,20 +47,37 @@ export default function RiwayatPage() {
   const fetchLansiaList = async () => {
     setIsLoadingLansia(true);
     try {
-      const response = await getAllLansia(1, 1000);
-      
-      if (response.error) {
-        showToast('error', response.error);
-        return;
+      // Fetch all lansia with pagination (max limit is 100)
+      let allLansia: Lansia[] = [];
+      let currentPage = 1;
+      let hasMoreData = true;
+
+      while (hasMoreData) {
+        const response = await getAllLansia(currentPage, 100);
+        
+        if (response.error) {
+          showToast('error', response.error);
+          return;
+        }
+
+        if (response.data && response.data.data && Array.isArray(response.data.data)) {
+          allLansia = [...allLansia, ...response.data.data];
+          
+          if (currentPage >= response.data.pagination.totalPages) {
+            hasMoreData = false;
+          } else {
+            currentPage++;
+          }
+        } else {
+          hasMoreData = false;
+        }
       }
 
-      if (response.data) {
-        const options: SelectOption[] = response.data.data.map((lansia: Lansia) => ({
-          value: lansia.id,
-          label: `${lansia.nama} - ${lansia.nik}`,
-        }));
-        setLansiaOptions(options);
-      }
+      const options: SelectOption[] = allLansia.map((lansia: Lansia) => ({
+        value: lansia.id,
+        label: `${lansia.nama} - ${lansia.nik}`,
+      }));
+      setLansiaOptions(options);
     } catch (error) {
       showToast('error', 'Gagal memuat data lansia');
       console.error('Fetch lansia error:', error);
@@ -72,14 +89,15 @@ export default function RiwayatPage() {
   const fetchPemeriksaanList = async (lansiaId: string) => {
     setIsLoadingPemeriksaan(true);
     try {
-      const response = await getAllPemeriksaan(lansiaId, 1, 1000);
+      // Fetch with max allowed limit
+      const response = await getAllPemeriksaan(lansiaId, 1, 100);
       
       if (response.error) {
         showToast('error', response.error);
         return;
       }
 
-      if (response.data) {
+      if (response.data && response.data.data && Array.isArray(response.data.data)) {
         // Sort by tanggal descending (newest first)
         const sortedData = [...response.data.data].sort(
           (a, b) => new Date(b.tanggal).getTime() - new Date(a.tanggal).getTime()

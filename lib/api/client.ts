@@ -8,7 +8,7 @@ import { ApiResponse } from '@/types';
 import { logger } from '@/lib/utils/logger';
 import { getUserFriendlyMessage } from '@/lib/utils/errorMessages';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://be-pencatatan-posyandu.vercel.app';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 /**
  * Base API Client class
@@ -24,10 +24,24 @@ class ApiClient {
   /**
    * Get auth token from localStorage
    * Returns null if not found or in server-side context
+   * Handles both plain string and JSON-stringified tokens
    */
   private getToken(): string | null {
     if (typeof window === 'undefined') return null;
-    const token = localStorage.getItem('token');
+    let token = localStorage.getItem('token');
+    
+    if (!token) return null;
+    
+    // Handle JSON-stringified tokens (from useLocalStorage hook)
+    // If token starts with a quote, it's been JSON.stringified
+    if (token.startsWith('"') && token.endsWith('"')) {
+      try {
+        token = JSON.parse(token);
+      } catch (error) {
+        logger.error('Failed to parse JSON-stringified token', error instanceof Error ? error : new Error('Parse error'));
+        return null;
+      }
+    }
     
     // Debug logging in development
     if (process.env.NODE_ENV === 'development' && token) {
@@ -48,10 +62,23 @@ class ApiClient {
   private handleUnauthorized(): void {
     if (typeof window === 'undefined') return;
     
-    logger.warn('Unauthorized access - redirecting to login');
-    // Don't clear localStorage here - let AuthContext/login page handle it
-    // This prevents conflicts with useLocalStorage state management
-    window.location.href = '/login';
+    const rawToken = localStorage.getItem('token');
+    logger.error('🔴 401 UNAUTHORIZED DETECTED!', new Error('Token invalid or expired'), {
+      currentPath: window.location.pathname,
+      rawToken: rawToken?.substring(0, 30) + '...',
+      hasQuotes: rawToken?.startsWith('"') && rawToken?.endsWith('"'),
+      timestamp: new Date().toISOString(),
+    });
+    
+    // TEMPORARY: Disable auto-redirect to debug infinite loop
+    // TODO: Re-enable after fixing token issue
+    console.error('❌ 401 Unauthorized - Check console for details');
+    console.error('Raw Token:', rawToken);
+    console.error('Has Quotes:', rawToken?.startsWith('"') && rawToken?.endsWith('"'));
+    console.error('User:', localStorage.getItem('user'));
+    
+    // Uncomment to re-enable redirect after debugging
+    // window.location.href = '/login';
   }
 
   /**

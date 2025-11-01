@@ -70,11 +70,25 @@ export const getStoredUser = (): unknown | null => {
 
 /**
  * Get stored token from localStorage
+ * Handles both plain string and JSON-stringified tokens
  * @returns Token or null if not found
  */
 export const getStoredToken = (): string | null => {
   if (typeof window === 'undefined') return null;
-  return localStorage.getItem('token');
+  let token = localStorage.getItem('token');
+  
+  if (!token) return null;
+  
+  // Handle JSON-stringified tokens (from useLocalStorage hook)
+  if (token.startsWith('"') && token.endsWith('"')) {
+    try {
+      token = JSON.parse(token);
+    } catch {
+      return null;
+    }
+  }
+  
+  return token;
 };
 
 /**

@@ -58,7 +58,7 @@ export default function LansiaPage() {
         return;
       }
 
-      if (response.data) {
+      if (response.data && response.data.data && Array.isArray(response.data.data)) {
         setLansiaList(response.data.data);
         setTotalPages(response.data.pagination.totalPages);
       }

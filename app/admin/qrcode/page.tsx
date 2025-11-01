@@ -28,21 +28,38 @@ export default function QRCodePage() {
   const fetchAllLansia = async () => {
     setIsLoading(true);
     try {
-      // Fetch all lansia without pagination (use large limit)
-      const response = await getAllLansia(1, 1000);
+      // Fetch all lansia with pagination (max limit is 100 per backend validation)
+      let allLansia: Lansia[] = [];
+      let currentPage = 1;
+      let hasMoreData = true;
 
-      if (response.error) {
-        showToast('error', response.error);
-        return;
+      while (hasMoreData) {
+        const response = await getAllLansia(currentPage, 100);
+
+        if (response.error) {
+          showToast('error', response.error);
+          return;
+        }
+
+        if (response.data && response.data.data && Array.isArray(response.data.data)) {
+          allLansia = [...allLansia, ...response.data.data];
+          
+          // Check if there are more pages
+          if (currentPage >= response.data.pagination.totalPages) {
+            hasMoreData = false;
+          } else {
+            currentPage++;
+          }
+        } else {
+          hasMoreData = false;
+        }
       }
 
-      if (response.data) {
-        // Filter only lansia with QR codes
-        const lansiaWithQR = response.data.data.filter(
-          (lansia) => lansia.qr_code_url !== null
-        );
-        setLansiaList(lansiaWithQR);
-      }
+      // Filter only lansia with QR codes
+      const lansiaWithQR = allLansia.filter(
+        (lansia) => lansia.qr_code_url !== null
+      );
+      setLansiaList(lansiaWithQR);
     } catch (error) {
       showToast('error', 'Gagal memuat data QR Code');
       console.error('Fetch lansia error:', error);
