@@ -5,7 +5,8 @@
  */
 
 import { apiClient } from './client';
-import { LoginRequest, LoginResponse, ApiResponse } from '@/types';
+import { LoginRequest, LoginResponse, ApiResponse, User } from '@/types';
+import { setCookie, deleteCookie } from '../utils/cookies';
 
 /**
  * Login user with email and password
@@ -20,7 +21,7 @@ export const login = async (
 
 /**
  * Logout user
- * Clears authentication data from localStorage
+ * Clears authentication data from localStorage and cookies
  * This is a client-side only operation
  */
 export const logout = (): void => {
@@ -28,18 +29,30 @@ export const logout = (): void => {
   
   localStorage.removeItem('token');
   localStorage.removeItem('user');
+  deleteCookie('auth');
+  deleteCookie('role');
 };
 
 /**
- * Save authentication data to localStorage
+ * Save authentication data to localStorage and cookies
  * @param token - JWT token
  * @param user - User data
  */
 export const saveAuthData = (token: string, user: unknown): void => {
   if (typeof window === 'undefined') return;
   
+  // Save to localStorage
   localStorage.setItem('token', token);
   localStorage.setItem('user', JSON.stringify(user));
+  
+  // Save auth flag and role to cookies for middleware
+  setCookie('auth', 'true', 7); // 7 days
+  
+  // Type-safe role extraction
+  if (user && typeof user === 'object' && 'role' in user) {
+    const typedUser = user as User;
+    setCookie('role', typedUser.role, 7);
+  }
 };
 
 /**
