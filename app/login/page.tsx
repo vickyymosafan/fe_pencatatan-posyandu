@@ -66,7 +66,14 @@ export default function LoginPage() {
 
       if (result.success) {
         toast.success('Login berhasil!');
-        // Redirect will be handled by useEffect
+        
+        // Manual redirect as fallback (useEffect will also handle it)
+        const storedUser = localStorage.getItem('user');
+        if (storedUser) {
+          const userData = JSON.parse(storedUser);
+          const dashboardUrl = userData.role === Role.ADMIN ? '/admin/dashboard' : '/petugas/dashboard';
+          router.push(dashboardUrl);
+        }
       } else {
         toast.error(result.error || 'Login gagal. Silakan coba lagi.');
       }

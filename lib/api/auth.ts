@@ -34,16 +34,12 @@ export const logout = (): void => {
 };
 
 /**
- * Save authentication data to localStorage and cookies
- * @param token - JWT token
+ * Save authentication cookies for middleware
+ * Note: localStorage is handled by useLocalStorage hook in AuthContext
  * @param user - User data
  */
-export const saveAuthData = (token: string, user: unknown): void => {
+export const saveAuthCookies = (user: unknown): void => {
   if (typeof window === 'undefined') return;
-  
-  // Save to localStorage
-  localStorage.setItem('token', token);
-  localStorage.setItem('user', JSON.stringify(user));
   
   // Save auth flag and role to cookies for middleware
   setCookie('auth', 'true', 7); // 7 days

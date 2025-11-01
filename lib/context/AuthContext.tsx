@@ -58,15 +58,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
    */
   useEffect(() => {
     const checkAuthStatus = async () => {
-      setIsLoading(true);
-      
-      // Check if token exists in localStorage
-      const storedToken = authApi.getStoredToken();
-      const storedUser = authApi.getStoredUser() as User | null;
+      // Only check localStorage if state is empty
+      // useLocalStorage already initializes from localStorage
+      // This is just a fallback for edge cases
+      if (!token && !user) {
+        const storedToken = authApi.getStoredToken();
+        const storedUser = authApi.getStoredUser() as User | null;
 
-      if (storedToken && storedUser) {
-        setToken(storedToken);
-        setUser(storedUser);
+        if (storedToken && storedUser) {
+          setToken(storedToken);
+          setUser(storedUser);
+          // Save cookies if they don't exist
+          authApi.saveAuthCookies(storedUser);
+        }
       }
 
       setIsLoading(false);
@@ -94,14 +98,19 @@ export function AuthProvider({ children }: AuthProviderProps) {
           };
         }
 
-        const { token: newToken, user: newUser } = response.data;
+        const { token: newToken, user: newUser } = response.data.data;
 
-        // Save to localStorage using API helper
-        authApi.saveAuthData(newToken, newUser);
-
-        // Update state
+        // Update state (useLocalStorage will handle localStorage)
         setToken(newToken);
         setUser(newUser);
+        
+        // Save cookies for middleware
+        authApi.saveAuthCookies(newUser);
+        
+        // Use setTimeout to ensure state updates complete before returning
+        // This prevents race condition with redirect
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
         setIsLoading(false);
 
         return { success: true };
@@ -120,12 +129,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
    * Logout user
    */
   const logout = useCallback(() => {
-    // Clear localStorage using API helper
-    authApi.logout();
-
-    // Clear state
+    // Clear state (useLocalStorage will handle localStorage)
     removeToken();
     removeUser();
+    
+    // Clear cookies
+    authApi.logout();
 
     // Redirect to login
     if (typeof window !== 'undefined') {

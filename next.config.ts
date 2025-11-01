@@ -109,7 +109,32 @@ const nextConfig: NextConfig = {
   },
 
   /* ============================================
-   * WEBPACK CONFIGURATION
+   * TURBOPACK CONFIGURATION (Next.js 16+)
+   * ============================================ */
+  turbopack: {
+    // Rules for module resolution
+    resolveAlias: {
+      // Add custom aliases if needed
+      // '@': './src',
+    },
+    // Resolve extensions
+    resolveExtensions: [
+      '.tsx',
+      '.ts',
+      '.jsx',
+      '.js',
+      '.mjs',
+      '.json',
+    ],
+    // Module rules for loaders
+    rules: {
+      // Custom rules can be added here
+      // Example: handle specific file types
+    },
+  },
+
+  /* ============================================
+   * WEBPACK CONFIGURATION (Fallback)
    * ============================================ */
   webpack: (config) => {
     // Custom webpack configuration if needed

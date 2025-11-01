@@ -67,7 +67,14 @@ export function AuthGuard({
 
   // Don't render content if not authenticated or wrong role
   if (!isAuthenticated || (requiredRole && user?.role !== requiredRole)) {
-    return null;
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-neutral-50">
+        <div className="text-center">
+          <div className="h-8 w-8 animate-spin rounded-full border-4 border-neutral-300 border-t-neutral-800 mx-auto mb-4"></div>
+          <p className="text-neutral-600">Mengalihkan...</p>
+        </div>
+      </div>
+    );
   }
 
   return <>{children}</>;

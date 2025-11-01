@@ -13,9 +13,9 @@
     "lint:fix": "eslint --fix",
     "type-check": "tsc --noEmit",
     "build:production": "npm run type-check && npm run lint && npm run build",
-    "build:analyze": "ANALYZE=true npm run build",
+    "build:analyze": "set ANALYZE=true && npm run build",
     "preview": "npm run build && npm run start",
-    "clean": "rm -rf .next out node_modules/.cache"
+    "clean": "if exist .next rmdir /s /q .next && if exist out rmdir /s /q out"
   },
   "dependencies": {
     "clsx": "^2.1.1",
