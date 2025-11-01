@@ -8,7 +8,7 @@ import { ApiResponse } from '@/types';
 import { logger } from '@/lib/utils/logger';
 import { getUserFriendlyMessage } from '@/lib/utils/errorMessages';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://be-pencatatan-posyandu.vercel.app';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 /**
  * Base API Client class

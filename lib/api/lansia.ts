@@ -14,7 +14,7 @@ import {
   ApiResponse,
 } from '@/types';
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'https://be-pencatatan-posyandu.vercel.app';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
 
 /**
  * Get all lansia with pagination and optional search
