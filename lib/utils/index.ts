@@ -5,3 +5,4 @@
 
 export * from './cookies';
 export * from './cn';
+export * from './validation';

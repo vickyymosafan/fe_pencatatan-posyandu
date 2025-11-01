@@ -14,6 +14,7 @@ import { Skeleton } from '@/components/ui/Skeleton';
 import { getLansiaById } from '@/lib/api/lansia';
 import { createPemeriksaan } from '@/lib/api/pemeriksaan';
 import { useToast } from '@/lib/hooks';
+import { validateRequired, validatePositiveNumber } from '@/lib/utils';
 import { Lansia, CreatePemeriksaanRequest } from '@/types';
 import { User, Calendar, MapPin, ClipboardEdit } from 'lucide-react';
 
@@ -85,22 +86,28 @@ export default function InputPemeriksaanPage() {
       return false;
     }
 
-    if (!tekananDarah.trim()) {
-      newErrors.tekanan_darah = 'Tekanan darah wajib diisi';
+    // Validate tekanan darah
+    const tekananDarahResult = validateRequired(tekananDarah, 'Tekanan darah');
+    if (!tekananDarahResult.isValid) {
+      newErrors.tekanan_darah = tekananDarahResult.error!;
     }
 
-    if (!beratBadan.trim()) {
-      newErrors.berat_badan = 'Berat badan wajib diisi';
-    } else if (isNaN(Number(beratBadan)) || Number(beratBadan) <= 0) {
-      newErrors.berat_badan = 'Berat badan harus berupa angka positif';
+    // Validate berat badan
+    const beratBadanResult = validatePositiveNumber(beratBadan, 'Berat badan');
+    if (!beratBadanResult.isValid) {
+      newErrors.berat_badan = beratBadanResult.error!;
     }
 
-    if (!gulaDarah.trim()) {
-      newErrors.gula_darah = 'Gula darah wajib diisi';
+    // Validate gula darah
+    const gulaDarahResult = validateRequired(gulaDarah, 'Gula darah');
+    if (!gulaDarahResult.isValid) {
+      newErrors.gula_darah = gulaDarahResult.error!;
     }
 
-    if (!kolesterol.trim()) {
-      newErrors.kolesterol = 'Kolesterol wajib diisi';
+    // Validate kolesterol
+    const kolesterolResult = validateRequired(kolesterol, 'Kolesterol');
+    if (!kolesterolResult.isValid) {
+      newErrors.kolesterol = kolesterolResult.error!;
     }
 
     setErrors(newErrors);

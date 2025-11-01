@@ -10,6 +10,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Input, Button, Card } from '@/components/ui';
 import { useAuth, useToast } from '@/lib/hooks';
+import { validateEmail, validatePassword } from '@/lib/utils';
 import { Role } from '@/types';
 
 export default function LoginPage() {
@@ -32,37 +33,18 @@ export default function LoginPage() {
     }
   }, [isAuthenticated, user, isLoading, router]);
 
-  // Email validation
-  const validateEmail = (value: string): boolean => {
-    if (!value) {
-      setEmailError('Email wajib diisi');
-      return false;
-    }
-
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(value)) {
-      setEmailError('Format email tidak valid');
-      return false;
-    }
-
-    setEmailError('');
-    return true;
+  // Email validation using utility
+  const handleEmailValidation = (value: string): boolean => {
+    const result = validateEmail(value);
+    setEmailError(result.error || '');
+    return result.isValid;
   };
 
-  // Password validation
-  const validatePassword = (value: string): boolean => {
-    if (!value) {
-      setPasswordError('Password wajib diisi');
-      return false;
-    }
-
-    if (value.length < 8) {
-      setPasswordError('Password minimal 8 karakter');
-      return false;
-    }
-
-    setPasswordError('');
-    return true;
+  // Password validation using utility
+  const handlePasswordValidation = (value: string): boolean => {
+    const result = validatePassword(value);
+    setPasswordError(result.error || '');
+    return result.isValid;
   };
 
   // Handle form submission
@@ -70,8 +52,8 @@ export default function LoginPage() {
     e.preventDefault();
 
     // Validate inputs
-    const isEmailValid = validateEmail(email);
-    const isPasswordValid = validatePassword(password);
+    const isEmailValid = handleEmailValidation(email);
+    const isPasswordValid = handlePasswordValidation(password);
 
     if (!isEmailValid || !isPasswordValid) {
       return;
@@ -138,7 +120,7 @@ export default function LoginPage() {
               value={email}
               onChange={(value) => {
                 setEmail(value);
-                if (emailError) validateEmail(value);
+                if (emailError) handleEmailValidation(value);
               }}
               error={emailError}
               placeholder="nama@example.com"
@@ -153,7 +135,7 @@ export default function LoginPage() {
               value={password}
               onChange={(value) => {
                 setPassword(value);
-                if (passwordError) validatePassword(value);
+                if (passwordError) handlePasswordValidation(value);
               }}
               error={passwordError}
               placeholder="Masukkan password"
