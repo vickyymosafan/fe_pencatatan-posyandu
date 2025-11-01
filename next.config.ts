@@ -35,12 +35,18 @@ const nextConfig: NextConfig = {
         hostname: '**.vercel.app',
         pathname: '/uploads/**',
       },
-      // Add your production backend domain here
-      // {
-      //   protocol: 'https',
-      //   hostname: 'your-backend-domain.com',
-      //   pathname: '/uploads/**',
-      // },
+      // Supabase Storage for QR Codes
+      {
+        protocol: 'https',
+        hostname: '**.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
+      // Production backend domain
+      {
+        protocol: 'https',
+        hostname: 'be-pencatatan-posyandu.vercel.app',
+        pathname: '/uploads/**',
+      },
     ],
     // Image formats to support
     formats: ['image/avif', 'image/webp'],
